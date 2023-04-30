@@ -41,8 +41,3 @@ If you encounter any issues while running the application, make sure that:
 
 1. You have the necessary permissions to access the network folders.
 2. All the required dependencies are present in the `dist` folder.
-
-## Even more special note
-
-This is a side project written and maintained, 100%, by Madelyn Bailey, it is not an official Eagleview maintained software. Refer to existing documentation that has been/will be provided for errors. 
-If it breaks- it breaks.
