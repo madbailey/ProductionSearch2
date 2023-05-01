@@ -39,13 +39,8 @@ def get_default_search_folders():
 
 config = readconfig.read_config()
 
-if config:
-    search_folders = config["search_folders"]
-    for folder in search_folders:
-        print(folder)
-else:
-    print("JSON not readable, using default values")
-    search_folders = get_default_search_folders()
+search_folders = config["search_folders"]
+    
 
 class DraggableTreeview(tb.Treeview):
     def __init__(self, *args, **kwargs):
