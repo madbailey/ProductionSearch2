@@ -17,13 +17,11 @@ def apply_styles(tk_title, user_style, root=None):
     image = Image.open('magnify.ico')
     photo = ImageTk.PhotoImage(image)
     root.wm_iconphoto(False, photo)
-    DGRAY = style.lookup("TFrame", "background")
-    LGRAY = style.lookup("TEntry", "foreground")
-    RGRAY = style.lookup("TEntry", "selectbackground")
+
     ui_font = "Helvetica"
     
     style.configure('danger.Tbutton', font=(ui_font, 9), bootstyle='danger')
-    style.configure('RightAligned.TButton', foreground=LGRAY, font=(ui_font, 9), width=12)
+    style.configure('RightAligned.TButton', font=(ui_font, 9), width=12)
 
     style.configure('custom.TLabelframe', font=(ui_font, 9))
-    return root, style, DGRAY, LGRAY, RGRAY, ui_font
+    return root, style, ui_font

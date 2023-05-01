@@ -47,28 +47,6 @@ def maximize_me(root, expand_button):
         # now it is not maximized
 
 
-#def changex_on_hovering(event, close_button, RGRAY):
-#    close_button['bg'] = 'red'
-
-
-#def returnx_to_normalstate(event, close_button, RGRAY):
-#    close_button['bg'] = RGRAY
-
-
-#def change_size_on_hovering(event, expand_button, RGRAY):
-#    expand_button['bg'] = RGRAY
-
-
-#def return_size_on_hovering(event, expand_button, RGRAY):
-#    expand_button['bg'] = RGRAY
-
-
-def changem_size_on_hovering(event, minimize_button, LGRAY):
-    minimize_button['bg'] = LGRAY
-
-
-def returnm_size_on_hovering(event, minimize_button, RGRAY):
-    minimize_button['bg'] = RGRAY
 
 
 def get_pos(event, root, title_bar, title_bar_title, expand_button):
@@ -109,7 +87,7 @@ def resizex(event, root, resizex_widget, DGRAY):
             pass
 
               
-    resizex_widget.config(bg=DGRAY)
+    resizex_widget.config()
 
 
 def resizey(event, root, resizey_widget, DGRAY):
@@ -128,4 +106,4 @@ def resizey(event, root, resizey_widget, DGRAY):
             except:
                 pass
 
-    resizey_widget.config(bg=DGRAY)
+    resizey_widget.config()

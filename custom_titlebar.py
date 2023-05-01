@@ -8,7 +8,7 @@ from events_handler import *
 #this handles the aesthetics and some basic mechanics of the custom tkinter title bar, more utility functions like resizing, moving the window, minimizing and 
 #restoring after minimizing are found in events_handler.py
 class CustomTitleBar:
-    def __init__(self, root, title, window, style, BG_COLOR, FG_COLOR, SELECT_BG_COLOR, main_content, ui_font):
+    def __init__(self, root, title, window, style, main_content, ui_font):
         self.root = root
         self.title = title
         self.window = window
@@ -43,7 +43,7 @@ class CustomTitleBar:
         #minimize_button.bind('<Leave>', lambda event: returnm_size_on_hovering(event, minimize_button,))
 
         # resize the window width
-        resizex_widget = tk.Frame(self.window, bg=self.BG_COLOR, cursor='sb_h_double_arrow')
+        resizex_widget = tk.Frame(self.window, cursor='sb_h_double_arrow')
         resizex_widget.pack(side=RIGHT, ipadx=2, fill=Y)
 
         resizex_widget.bind("<B1-Motion>", lambda event: resizex(event, self.root, resizex_widget, self.BG_COLOR))
