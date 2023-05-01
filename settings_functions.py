@@ -7,6 +7,7 @@ from ttkbootstrap.constants import *
 import ttkbootstrap as tb
 import custom_styles
 import prod_search_gui
+import os
 import time
 
 
@@ -31,8 +32,11 @@ class settings_functions:
         self.destination_folder_var = StringVar()
 
     def update_style(self, new_theme, popup):
-        self.selected_theme = new_theme
+        # Check if the new_theme is an empty string
+        if new_theme == "":
+            return
 
+        self.selected_theme = new_theme
         # Update the user_style in the config dictionary
         # Write the updated config to the config.json file
         with open('config.json', 'r') as config_file:
@@ -61,19 +65,27 @@ class settings_functions:
         return folder_path
 
     def create_new_row(self, new_button_name, destination_folder):
-       self.button_name = new_button_name
-       self.destination_folder = destination_folder
-       index_to_edit = len(self.evm_move_tree.get_children())
-       print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+        # Check if both new_button_name and destination_folder are not empty strings
+        if new_button_name == "" or destination_folder == "":
+            raise ValueError("New buttons need name and destination folder.")
 
-       new_button_data = {
+        # Check if the destination_folder is a valid directory
+        if not os.path.isdir(destination_folder):
+            raise ValueError(f"The destination folder '{destination_folder}' is not a valid directory.")
+
+        self.button_name = new_button_name
+        self.destination_folder = destination_folder
+        index_to_edit = len(self.evm_move_tree.get_children())
+        print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+
+        new_button_data = {
             "text": self.button_name,
             "row": index_to_edit + 1,
             "target": self.destination_folder
         }
 
-       self.evm_move_tree.insert('', 'end', values=(new_button_data['text'], new_button_data['target']))  # Insert at the end of the Treeview
-       self.update_move_buttons_data()
+        self.evm_move_tree.insert('', 'end', values=(new_button_data['text'], new_button_data['target']))  # Insert at the end of the Treeview
+        self.update_move_buttons_data()
 
     def edit_row(self, new_button_name, destination_folder):
         self.button_name = new_button_name

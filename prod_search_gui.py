@@ -13,29 +13,7 @@ from settings_functions import settings_functions
 import json
 import time
 from ttkbootstrap import utility
-def get_default_search_folders():
-    return [
-        r"S:\1_InBox\Shift Supervisor",
-        r"S:\1_InBox\Day Shift\[TeamLead]",
-        r"S:\2_Measured\QC\[TeamLead]\InProgress",
-        r"S:\2_Measured\QC\003PreviouslyMeasured",
-        r"S:\2_Measured\QC\004NeedsPlanarization",
-        r"S:\3.1_AutoDelivery",
-        r"S:\3.1_ManualDelivery",
-        r"S:\3.8_StatusFailures",
-        r"S:\3.9_AutoDeliveryFailures",
-        r"S:\3_QCPassed",
-        r"S:\3_QCPassed_1",
-        r"S:\3_QCPassed_2",
-        r"S:\3_QCPassed_3",
-        r"S:\3_QCPassed_4",
-        r"S:\3_QCPassed_New",
-        r"S:\14_BacktoQCpassed",
-        r"S:\8_Canceled Orders",
-        r"S:\AutoHouseReport",
-        r"S:\2_Measured\QC\PlanarizeThis"
-        # Add more folders to search as needed
-    ]
+import csv
 
 config = readconfig.read_config()
 
@@ -108,8 +86,16 @@ class SearchGUI:
         self.tree.bind("<Double-1>", self.treeview_handler.open_file_location)
         self.tree.bind("<Button-3>", self.treeview_handler.treeview_right_click)
 
-        self.context_menu.add_command(label="Copy Order #", command=lambda: self.treeview_handler.copy_text(0, is_order_number=True))
-        self.context_menu.add_command(label="Copy File Path", command=lambda: self.treeview_handler.copy_text(4, is_order_number=False))
+        self.context_menu.add_command(label="Copy Order #", 
+                                      command=lambda: self.treeview_handler.copy_text(0, 
+                                                                                      is_order_number=True))
+        self.context_menu.add_command(label="Copy File Path", 
+                                      command=lambda: self.treeview_handler.copy_text(4, 
+                                                                                      is_order_number=False))
+        export_button = tb.Button(self.frame, text="Export", 
+                                    bootstyle='link',
+                                      command= lambda: self.treeview_handler.export_to_csv("output.csv"))
+        export_button.grid(row=6, column=2, padx=1, pady=1, sticky="e")
     #created the frame where the search bar, search button, and refresh button go
 
     def create_input_frame(self):
@@ -178,17 +164,7 @@ class SearchGUI:
         inner_buttons_frame = tk.Frame(buttons_frame)
         inner_buttons_frame.grid(row=0, column=0, padx=0, pady=0, sticky='ew')
         config = readconfig.read_config()
-        if config and "move_buttons" in config:
-            move_buttons_config = config["move_buttons"]
-        else:
-            print("JSON not readable or missing move_buttons configuration, using default values")
-            move_buttons_config = [
-                {"text": "Canceled", "row": 1, "target": r"S:\8_Canceled Orders"},
-                {"text": "BackToQCP", "row": 2, "target": r"S:\14_BacktoQCpassed"},
-                {"text": "PrevMeasured", "row": 3, "target": r"S:\2_Measured\QC\003PreviouslyMeasured\New"},
-                {"text": "Holding", "row": 5, "target": r"S:\AutoHouseReport"},
-                {"text": "HelpDesk", "row": 4, "target": r"S:\3.1_ManualDelivery\HELPDESK"}
-            ]
+        move_buttons_config = config["move_buttons"]
     
         for button_config in move_buttons_config:
             text, row, target = button_config["text"], button_config["row"], button_config["target"]
@@ -215,7 +191,9 @@ class SearchGUI:
         settings_button = tb.Button(self.frame, text="⚙", 
                                     bootstyle='link', command= lambda: self.open_menu())
         settings_button.grid(row=6, column=0, padx=1, pady=1, sticky="w")
+
         
+       
     def open_menu(self):
         # Create a new Toplevel window
         popup = tk.Toplevel(self.frame)
@@ -223,6 +201,21 @@ class SearchGUI:
         popup.transient(self.frame)
         options_notebook = tb.Notebook(popup, bootstyle = 'info')
         options_notebook.grid(row=0, column=0, padx=10, pady=10)
+
+        def combined_button_function():
+            self.settings_func.update_style(theme_selector.get(), popup)
+            self.settings_func.apply_changes()
+
+        confirm_button = tb.Button(popup, text="Apply Changes", 
+                                    bootstyle = 'info.outline',
+                                    command=combined_button_function)
+        confirm_button.grid(row=1, column=0, padx=0, sticky=E)
+
+        regenerate_button = tb.Button(popup, text= 'Reset to Default', 
+                                       bootstyle= 'danger.outline', 
+                                       command=lambda: self.settings_func.regenerate_json())
+        regenerate_button.grid(row=1, column=0, padx=0, sticky=W, columnspan=2)
+
 
         tab1= tb.Frame(options_notebook)
         tab2 = tb.Frame(options_notebook)
@@ -241,25 +234,9 @@ class SearchGUI:
         theme_selector["values"] = our_themes
         theme_selector.grid(row=0, column=0, padx=10, pady=10)
 
-        
-        #confirm button to apply changes
-        confirm_button = tb.Button(tab1, text="Update Theme", 
-                                   bootstyle = 'info',
-                                   command=lambda: self.settings_func.update_style(theme_selector.get(), popup))
-        confirm_button.grid(row=1, column=0, columnspan=2, pady=10, sticky= EW)
-
-        misc_separator = tb.Separator(tab1, bootstyle = 'info')
-        misc_separator.grid(row =2, column=0, columnspan=4, pady=10, sticky=EW)
-
-        regenerate_button = tb.Button(tab1, text= 'Reset Settings', 
-                                      bootstyle= 'danger', 
-                                      command =lambda: self.settings_func.regenerate_json())
-        regenerate_button.grid(row=3, column=0,columnspan=4, padx=60, pady=25, sticky=EW)
-
 
 
         ## SECOND TAB
-        ##evm_move_columns = ("Label", "Row", "Destination Folder")
 
         evm_move_tree = DraggableTreeview(master=tab2, 
                                   columns=[0, 2], 
@@ -320,12 +297,16 @@ class SearchGUI:
                                   command =lambda: self.settings_func.delete_button(popup))
         delete_button.grid(row=2, column=3, padx=5, pady=5)
 
-        
+        def create_new_row_wrapper():
+            try:
+                self.settings_func.create_new_row(new_button_name.get(), self.settings_func.destination_folder_var.get())
+                self.settings_func.clear_entries(new_button_name, folder_selection)
+            except ValueError as e:
+                tk.messagebox.showerror("Error", str(e))
 
         new_row_button = ttk.Button(button_creator_frame, text='Create New',
-                                    command=lambda: [self.settings_func.create_new_row(new_button_name.get(),self.settings_func.destination_folder_var.get()),
-                                    self.settings_func.clear_entries(new_button_name, folder_selection)],
-                                    bootstyle='info')
+                            command=create_new_row_wrapper,
+                            bootstyle='info')
         new_row_button.grid(row=2, column=0)
 
         edit_row_button = ttk.Button(button_creator_frame, text='Edit Selected',
@@ -335,10 +316,7 @@ class SearchGUI:
                                                     bootstyle = 'info')
         edit_row_button.grid(row=2, column=1)
 
-        move_button_changer = tb.Button(tab2, text = 'Apply',
-                                command=self.settings_func.apply_changes,
-                                bootstyle = 'info')
-        move_button_changer.grid(row=4, column =2)
+        
 
         ## THIRD TAB
 

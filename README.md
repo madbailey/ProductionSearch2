@@ -1,7 +1,7 @@
-# Production Search Tool test version 0.7
+# Production Search Tool 
 
 ## General About
-Production Search Tool is a Python-based application for searching files using a series of order numbers, a string that represents a portion of the file name, and listing the matches in an easy to read and decipher tree view. From this tree view you open files, copy information about them, 
+Production Search Tool is a Python-based application for searching files using a series of strings that represents a portion of the file name, and listing the matches in an easy to read and decipher tree view. From this tree view you open files, copy information about them, 
 
 ## Special Note
 
@@ -9,11 +9,11 @@ With great power comes great responsibility- be sure to double check your work b
 
 ## Features
 
-- Search for multiple order numbers at once by providing a comma-separated list (e.g - number1, number2, number3, number4, etc)
+- Search for multiple files at once by providing a comma-separated list (e.g - number1, number2, number3, number4, etc)
 - Search across multiple network folders
 - Display the search results in a clear and organized table
 - Efficient search using multithreading
-- One click move EVMs to specific folders 
+- One click move files to specific folders 
 
 ## Installation 
 

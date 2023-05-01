@@ -1,5 +1,6 @@
 import common_imports as ci
-
+import csv
+from datetime import datetime
 ##this class handles click interactions with the tkinter treeview, sorting, double click to open files, and right click to copy/paste
 ##the treeview itself is handled within the prod_search_gui.py module
 class Treeview_Handler:
@@ -69,3 +70,31 @@ class Treeview_Handler:
     
         self.root.clipboard_clear()
         self.root.clipboard_append(column_text)
+    def export_to_csv(self, filename):
+        # Get the current date and time
+        now = datetime.now()
+        timestamp = now.strftime("%m/%d/%Y %H:%M")
+
+        # Set the filename with the date and time
+        filename = f"Search Results {timestamp}.csv"
+
+        # Create the 'dataexports' directory if it doesn't exist
+        output_directory = 'dataexports'
+        if not ci.os.path.exists(output_directory):
+            ci.os.makedirs(output_directory)
+
+        # Join the output directory and the filename
+        output_path = ci.os.path.join(output_directory, filename)
+
+        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(self.tree["columns"])  # Write the column headers
+            for row in self.tree.get_children():
+                row_data = [self.tree.set(row, col) for col in self.tree["columns"]]
+                writer.writerow(row_data)
+
+                # Write child rows
+                for child in self.tree.get_children(row):
+                    child_data = [self.tree.set(child, col) for col in self.tree["columns"]]
+                    writer.writerow(child_data)
+        print(f"Finished Exporting {filename} to {output_directory}")
