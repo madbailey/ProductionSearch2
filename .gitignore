@@ -1,2 +1,6 @@
 config.json
 stylechecker.py
+.vscode\
+__pycache__\
+build\
+dist\
