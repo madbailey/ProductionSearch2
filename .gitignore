@@ -26,3 +26,7 @@ build/main/Tree-01.toc
 __pycache__/settings_functions.cpython-311.pyc
 dataexports/Search Results 05_02_2023_11-00.csv
 dataexports/Search Results 05.02.2023 10
+__pycache__/prod_search_gui.cpython-311.pyc
+dist/dataexports/Search Results 05_02_2023_14-17.csv
+__pycache__/TreeView_Event_Handler.cpython-311.pyc
+__pycache__/search_files.cpython-311.pyc
