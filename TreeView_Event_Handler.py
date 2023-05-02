@@ -73,7 +73,7 @@ class Treeview_Handler:
     def export_to_csv(self, filename):
         # Get the current date and time
         now = datetime.now()
-        timestamp = now.strftime("%m/%d/%Y %H:%M")
+        timestamp = now.strftime("%m_%d_%Y_%H-%M")
 
         # Set the filename with the date and time
         filename = f"Search Results {timestamp}.csv"

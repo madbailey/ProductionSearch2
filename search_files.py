@@ -117,7 +117,7 @@ class SearchManager:
         fixed_input = self.process_input(order_number_entry)
         if fixed_input is None:
             return
-
+        print(search_folders)
         total_start_time = ci.time.time()  # Record the start time of the entire search
         all_unmatched_order_numbers = self.perform_search(fixed_input, search_folders)
 

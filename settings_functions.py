@@ -15,7 +15,10 @@ import time
 
 
 class settings_functions:
-    def __init__(self, root, tk_title, evm_move_tree, buttons_frame, search_gui_instance):
+    """
+    This class handles the settings and configuration for the application.
+    """
+    def __init__(self, root, tk_title, evm_move_tree, buttons_frame, search_gui_instance, search_folder_tree):
         self.root = root
         self.tk_title = tk_title
         self.destination_folder = tk.StringVar()
@@ -27,9 +30,11 @@ class settings_functions:
         # Load the move_buttons data from the config
         with open('config.json', 'r') as config_file:
             config = json.load(config_file)
+        self.config=config
         self.move_buttons_data = config['move_buttons']
         self.selected_theme = config['user_style']
         self.destination_folder_var = StringVar()
+        self.search_folder_tree = search_folder_tree
 
     def update_style(self, new_theme, popup):
         # Check if the new_theme is an empty string
@@ -55,13 +60,14 @@ class settings_functions:
         index_to_remove = self.evm_move_tree.index(selected_item)  # Get the index of the selected item
         self.evm_move_tree.delete(selected_item)  # Remove the item from the treeview
         
-        self.update_move_buttons_data()
+        #self.update_move_buttons_data()
       
 
-    def select_destination(self):
-        folder_path = tk.filedialog.askdirectory()
-        self.destination_folder_var.set(folder_path)
-        print(f"Init destination_folder_var: {self.destination_folder_var.get()}, type: {type(self.destination_folder_var)}")
+    def select_destination(self, output_var):
+        default_folder = os.path.abspath("s:/")  # This will set the default folder to the S drive
+        folder_path = tk.filedialog.askdirectory(initialdir=default_folder)
+        output_var.set(folder_path)
+        print(f"Init output_var: {output_var.get()}, type: {type(output_var)}")
         return folder_path
 
     def create_new_row(self, new_button_name, destination_folder):
@@ -124,19 +130,92 @@ class settings_functions:
 
         with open('config.json', 'r') as config_file:
             config = json.load(config_file)
-            print(f"Config BEFORE update: {config}")
+            
         config['move_buttons'] = move_buttons_data
-        print(f"Config AFTER update: {config}")
+        
         with open('config.json', 'w') as config_file:
             json.dump(config, config_file, indent=2)
 
     def apply_changes(self):
         self.update_move_buttons_data()
         self.search_gui_instance.refresh_move_buttons()
+        self.update_search_data()
         print("Refresh Move Buttons Called")
-    def clear_entries(self, new_button_name, folder_selection):
+
+    def clear_button_entries(self, new_button_name, folder_selection):
         new_button_name.delete(0, 'end')
         folder_selection.delete(0, 'end')
+
+    def clear_folder_entries(self, search_folder_selection):
+        search_folder_selection.delete(0, 'end')
+    
+    
+    def update_move_treeview(self):
+        # Clear the treeview
+        for item in self.evm_move_tree.get_children():
+            self.evm_move_tree.delete(item)    
+        # Load the move_buttons data from the config
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+        move_buttons_data = config['move_buttons']    
+        # Repopulate the treeview with the updated data
+        for item in move_buttons_data:
+            self.evm_move_tree.insert('', 'end', values=(item['text'], item['target'])) 
+
+    def add_new_folder(self, search_folder_var):
+        # Check if both new_button_name and destination_folder are not empty strings
+        if search_folder_var == "":
+            raise ValueError("No Folder Selected")
+
+        # Check if the destination_folder is a valid directory
+        if not os.path.isdir(search_folder_var):
+            raise ValueError(f"The destination folder '{search_folder_var}' is not a valid directory.")
+
+        # Normalize the folder path
+        search_folder_var = os.path.normpath(search_folder_var)
+
+        # Get the folder data from the search_folder_tree treeview
+        existing_folders = [os.path.normpath(self.search_folder_tree.item(item)['values'][0]) for item in self.search_folder_tree.get_children()]
+
+        # Check if the new folder is a duplicate or a subfolder of an existing folder
+        for folder in existing_folders:
+            if search_folder_var == folder or search_folder_var.startswith(folder) or folder.startswith(search_folder_var):
+                raise ValueError(f"The folder '{search_folder_var}' is already in the search or is a subfolder of an existing folder.")
+
+        self.search_folder_tree.insert('', 'end', values=(search_folder_var,))
+
+    def delete_folder(self, toplevel):
+        selected_item = self.search_folder_tree.selection()[0]  # Get the ID of the selected item
+        index_to_remove = self.search_folder_tree.index(selected_item)  # Get the index of the selected item
+        self.search_folder_tree.delete(selected_item)  # Remove the item from the treeview
+ 
+    def update_search_data(self):
+        # Get the folder data from the search_folder_tree treeview
+        search_folder_data = [self.search_folder_tree.item(item)['values'][0] for item in self.search_folder_tree.get_children()]
+        print("Search folder data from treeview:", search_folder_data)
+
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+        print("Config before update:", config)
+
+        config['search_folders'] = search_folder_data
+
+        with open('config.json', 'w') as config_file:
+            json.dump(config, config_file, indent=2)
+        print("Updated config:", config)
+
+    def regenerate_search_treeview(self):
+        # Clear the treeview
+        for item in self.search_folder_tree.get_children():
+            self.search_folder_tree.delete(item)    
+        # Load the move_buttons data from the config
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+        search_folder_data = config['search_folders']
+
+        # Iterate over the search_folder_data and insert the items into the search_folder_tree
+        for index, folder in enumerate(search_folder_data):
+            self.search_folder_tree.insert('', index, values=(folder,))
 
     def regenerate_json(self):
         data = {
@@ -180,4 +259,6 @@ class settings_functions:
         config['user_style'] = self.selected_theme
 
         print("Reset Settings to Default Config")
+        self.update_move_treeview()
+        self.regenerate_search_treeview()
         self.search_gui_instance.refresh_move_buttons()
