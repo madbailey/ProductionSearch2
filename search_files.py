@@ -31,10 +31,11 @@ class SearchManager:
                 match = order_number_pattern.search(file)
                 if match and file.endswith(".evm"):
                     order_number, file_path, last_modified_date, containing_folder = self.process_file(match, root, file)
-                    order_type = self.extract_order_type(order_type_pattern, file)
-                    self.insert_tree_item(order_number, containing_folder, order_type, last_modified_date, file_path)
-                    found_order_numbers.add(order_number)
-                    unmatched_order_numbers.discard(order_number)  # Remove the found order number from unmatched set
+                    if order_number is not None:
+                        order_type = self.extract_order_type(order_type_pattern, file)
+                        self.insert_tree_item(order_number, containing_folder, order_type, last_modified_date, file_path)
+                        found_order_numbers.add(order_number)
+                        unmatched_order_numbers.discard(order_number)  # Remove
                 if len(found_order_numbers) == len(fixed_input):
                     break
             else:
@@ -48,20 +49,25 @@ class SearchManager:
 
 ## takes found matches, extracts order number, file path, last modified timestamp
     def process_file(self, match, root, file):
-        order_number = match.group()
-        file_path = ci.os.path.join(root, file)
-        last_modified_timestamp = ci.os.path.getmtime(file_path)
-        last_modified_date = ci.time.strftime(' %m/%d/%y %I:%M:%S %p', ci.time.localtime(last_modified_timestamp))
-        # Get the parent folder path
-        parent_folder_path = ci.os.path.dirname(file_path)
-        # Get the parent folder name
-        parent_folder_name = ci.os.path.basename(parent_folder_path)
-        # Get the grandparent folder path
-        grandparent_folder_path = ci.os.path.dirname(parent_folder_path)
-        # Get the grandparent folder name
-        grandparent_folder_name = ci.os.path.basename(grandparent_folder_path)
-        containing_folder = f"{grandparent_folder_name}/{parent_folder_name}" if grandparent_folder_name else parent_folder_name
-        return order_number, file_path, last_modified_date, containing_folder
+        try:
+            order_number = match.group()
+            file_path = ci.os.path.join(root, file)
+            last_modified_timestamp = ci.os.path.getmtime(file_path)
+            last_modified_date = ci.time.strftime(' %m/%d/%y %I:%M:%S %p', ci.time.localtime(last_modified_timestamp))
+            # Get the parent folder path
+            parent_folder_path = ci.os.path.dirname(file_path)
+            # Get the parent folder name
+            parent_folder_name = ci.os.path.basename(parent_folder_path)
+            # Get the grandparent folder path
+            grandparent_folder_path = ci.os.path.dirname(parent_folder_path)
+            # Get the grandparent folder name
+            grandparent_folder_name = ci.os.path.basename(grandparent_folder_path)
+            containing_folder = f"{grandparent_folder_name}/{parent_folder_name}" if grandparent_folder_name else parent_folder_name
+            return order_number, file_path, last_modified_date, containing_folder
+
+        except FileNotFoundError:
+            print(f"The file {file} was moved or deleted before it could be processed.")
+            return None, None, None, None
 
 ## extracts the order product from the EVM name
     def extract_order_type(self, order_type_pattern, file):

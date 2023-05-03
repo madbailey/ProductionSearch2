@@ -38,38 +38,56 @@ class Treeview_Handler:
 
 ## right clicking will open up a context menu that gives the options to copy text 
     def treeview_right_click(self, event):
-        selected_item = self.tree.selection()
-        item_id = self.tree.identify("item", event.x, event.y)
-        if not item_id:
-            return
+        item = self.tree.identify("item", event.x, event.y)
 
-        self.tree.selection_set(item_id)
-        if selected_item and not self.is_parent(selected_item[0]):
-            self.context_menu.post(event.x_root, event.y_root)
-        else:
-            self.context_menu.unpost()
+        if item not in self.tree.selection():
+            # Add the right-clicked item to the selection
+            self.tree.selection_set(self.tree.selection() + (item,))
+
+        self.context_menu.post(event.x_root, event.y_root)
 
 ## handles text copy pasting 
-    def copy_text(self, column_index, is_order_number=False):
-        selected_item = self.tree.selection()[0]
-        if not selected_item:
+    def copy_text(self, event=None, column_index=None):
+        selected_items = self.tree.selection()
+        if not selected_items:
             return
-    
-        if is_order_number:
-            if self.is_parent(selected_item):
-                column_text = self.tree.item(selected_item)["values"][column_index]
+
+        if event:
+            column_index = 0
+
+        column_texts = []
+
+        for selected_item in selected_items:
+            if column_index == 0:
+                if self.is_parent(selected_item):
+                    column_text = self.tree.item(selected_item)["values"][column_index]
+                else:
+                    # Get the parent of the selected item
+                    parent_item = self.tree.parent(selected_item)
+                    if parent_item:
+                        # Get the order number value of the parent item
+                        values = self.tree.item(parent_item)["values"]
+                        print(f"Values: {values}, Column index: {column_index}")  # debugging - remove this later
+                        column_text = self.tree.item(parent_item)["values"][column_index]
+
+                        # Remove the "+ " prefix from the order number
+                        column_text = column_text[2:]
+                    else:
+                        # If there's no parent item, use the selected item's values
+                        column_text = self.tree.item(selected_item)["values"][column_index]
+
+                        # Convert column_text to string and trim
+                        column_text = str(column_text).lstrip()
             else:
-                # Get the parent of the selected item
-                parent_item = self.tree.parent(selected_item)
-                # Get the order number value of the parent item
-                column_text = self.tree.item(parent_item)["values"][column_index]
-                # Remove the "+ " prefix from the order number
-                column_text = column_text[2:]
-        else:
-            column_text = self.tree.item(selected_item)["values"][column_index]
-    
+                column_text = self.tree.item(selected_item)["values"][column_index]
+
+            column_texts.append(str(column_text))
+
+        comma_delimited_text = ','.join(column_texts)
+
         self.root.clipboard_clear()
-        self.root.clipboard_append(column_text)
+        self.root.clipboard_append(comma_delimited_text)
+
     def export_to_csv(self, filename):
         # Get the current date and time
         now = datetime.now()

@@ -7,13 +7,10 @@ from TreeView_Event_Handler import Treeview_Handler
 import read_config as readconfig
 import threading
 import sys
-import custom_styles
 from file_mover import FileMover
 from settings_functions import settings_functions
 import json
-import time
-from ttkbootstrap import utility
-import csv
+
 
 config = readconfig.read_config()
 
@@ -83,15 +80,22 @@ class SearchGUI:
 
         self.tree.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
+        # Create a vertical scrollbar
+        self.scrollbar = tb.Scrollbar(self.frame, orient="vertical", command=self.tree.yview, bootstyle = 'light.rounded')
+        self.scrollbar.grid(row=2, column=1, padx=5, pady=5, sticky="ns")
+
+        # Configure the treeview to use the scrollbar
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+
         self.tree.bind("<Double-1>", self.treeview_handler.open_file_location)
         self.tree.bind("<Button-3>", self.treeview_handler.treeview_right_click)
+        self.tree.bind("<Control-c>", self.treeview_handler.copy_text)
 
         self.context_menu.add_command(label="Copy Order #", 
-                                      command=lambda: self.treeview_handler.copy_text(0, 
-                                                                                      is_order_number=True))
+                              command=lambda: self.treeview_handler.copy_text(column_index=0))
+
         self.context_menu.add_command(label="Copy File Path", 
-                                      command=lambda: self.treeview_handler.copy_text(4, 
-                                                                                      is_order_number=False))
+                                      command=lambda: self.treeview_handler.copy_text(column_index=4))
         export_button = tb.Button(self.frame, text="Export", 
                                     bootstyle='link',
                                       command= lambda: self.treeview_handler.export_to_csv("output.csv"))
@@ -206,12 +210,12 @@ class SearchGUI:
             self.settings_func.update_style(theme_selector.get(), popup)
             self.settings_func.apply_changes()
 
-        confirm_button = tb.Button(popup, text="Apply Changes", 
+        confirm_button = tb.Button(popup, text="Apply All", 
                                     bootstyle = 'info.outline',
                                     command=combined_button_function)
         confirm_button.grid(row=1, column=0, padx=0, sticky=E)
 
-        regenerate_button = tb.Button(popup, text= 'Reset to Default', 
+        regenerate_button = tb.Button(popup, text= 'Reset All Settings', 
                                        bootstyle= 'danger.outline', 
                                        command=lambda: self.settings_func.regenerate_json())
         regenerate_button.grid(row=1, column=0, padx=0, sticky=W, columnspan=1)
@@ -270,11 +274,11 @@ class SearchGUI:
         evm_move_tree.heading(1, text= 'Path', anchor= E)
         evm_move_tree.column(
             column=0,
-            width= 5
+            width= 25
         )
         evm_move_tree.column(
             column=1,
-            width= 100
+            width= 200
         )
 
 

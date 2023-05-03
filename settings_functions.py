@@ -1,14 +1,12 @@
 import json
-import read_config as readconfig
 import tkinter as tk
-from tkinter import ttk
+
 from tkinter import StringVar
-from ttkbootstrap.constants import *
-import ttkbootstrap as tb
+
 import custom_styles
-import prod_search_gui
+
 import os
-import time
+
 
 
 

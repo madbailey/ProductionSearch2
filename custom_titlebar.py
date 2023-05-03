@@ -22,7 +22,8 @@ class CustomTitleBar:
         self.root.minimized = False
         self.root.maximized = False
         self.first_map_event = True  # Add this flag to track whether the <Map> event has been triggered for the first time
-
+        
+   
 ## created the tkinter objects, frame and buttons and binds them to events 
     def create_title_bar(self):
         title_bar_bootstyle = 'dark'
@@ -33,6 +34,9 @@ class CustomTitleBar:
         title_bar_title = tb.Label(title_bar, text=self.title, bootstyle = f"{title_bar_bootstyle}.inverse", font = (self.font, 10))
         title_bar.bind('<Button-1>', lambda event: get_pos(event, self.root, title_bar, title_bar_title, expand_button))
         title_bar_title.bind('<Button-1>', lambda event: get_pos(event, self.root, title_bar, title_bar_title, expand_button))
+
+
+
 
         # button effects in the title bar when hovering over buttons
         #close_button.bind('<Enter>', lambda event: changex_on_hovering(event, close_button))
