@@ -154,8 +154,8 @@ class SearchGUI:
         for item in move_buttons_data:
             button = tb.Button(
                 self.inner_buttons_frame,
-                text=item['text'],
-                command=lambda target=item['target']: self.move_to(target),
+                text=item['text'], 
+                command=lambda target=item['target']: self.file_mover.move_file_threaded(target),
                 bootstyle='default.link',
             )
             button.grid(row=item['row'], column=0, padx=0, pady=0, sticky="ew")
