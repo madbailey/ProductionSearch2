@@ -12,9 +12,6 @@ from settings_functions import settings_functions
 import json
 
 
-config = readconfig.read_config()
-
-search_folders = config["search_folders"]
     
 
 class DraggableTreeview(tb.Treeview):
@@ -112,7 +109,7 @@ class SearchGUI:
         order_number_entry = tb.Entry(input_frame, width=70)
         order_number_entry.grid(row=0, column=1, padx=(0, 2), pady=5)
 
-        search_button = tb.Button(input_frame, text=" ⮩", command=lambda: threading.Thread(target=self.search_manager.search_files, args=(order_number_entry, search_folders)).start(), bootstyle="secondary-outline")
+        search_button = tb.Button(input_frame, text=" ⮩", command=lambda: threading.Thread(target=self.search_manager.search_files, args=(order_number_entry,)).start(), bootstyle="secondary-outline")
         search_button.grid(row=0, column=2, padx=(0, 0), pady=5)
 
 
@@ -259,6 +256,9 @@ class SearchGUI:
         search_folder_tree.heading(0, text='Folders', anchor="center")
 
         # Load the move_buttons data from the config
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+
         search_folder_data = config['search_folders']
 
         # Iterate over the search_folder_data and insert the items into the search_folder_tree

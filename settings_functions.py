@@ -244,7 +244,7 @@ class settings_functions:
                 {"text": "PrevMeasured", "row": 3, "target": "S:\\2_Measured\\QC\\003PreviouslyMeasured\\new"},
                 {"text": "HelpDesk", "row": 4, "target": "S:\\3.1_ManualDelivery\\HELPDESK"},
                 {"text": "Holding", "row": 5, "target": "S:\\AutoHouseReport"},
-                {"text": "ADF", "row": 6, "target": "S:\\3.1_AutoDelivery\\ADF"}
+                {"text": "ADF", "row": 6, "target": "S:\\3.1_ManualDelivery\\ADF"}
             ],
             "user_style": "old"
         }
