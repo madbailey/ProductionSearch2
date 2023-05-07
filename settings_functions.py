@@ -24,7 +24,9 @@ class settings_functions:
         self.destination_folder.set('')
         self.buttons_frame = buttons_frame
         self.search_gui_instance = search_gui_instance
-        print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+        #print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+        
+        
         # Load the move_buttons data from the config
         with open('config.json', 'r') as config_file:
             config = json.load(config_file)
@@ -65,7 +67,7 @@ class settings_functions:
         default_folder = os.path.abspath("s:/")  # This will set the default folder to the S drive
         folder_path = tk.filedialog.askdirectory(initialdir=default_folder)
         output_var.set(folder_path)
-        print(f"Init output_var: {output_var.get()}, type: {type(output_var)}")
+        #print(f"Init output_var: {output_var.get()}, type: {type(output_var)}")
         return folder_path
 
     def create_new_row(self, new_button_name, destination_folder):
@@ -80,7 +82,7 @@ class settings_functions:
         self.button_name = new_button_name
         self.destination_folder = destination_folder
         index_to_edit = len(self.evm_move_tree.get_children())
-        print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+        #print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
 
         new_button_data = {
             "text": self.button_name,
@@ -94,7 +96,7 @@ class settings_functions:
     def edit_row(self, new_button_name, destination_folder):
         self.button_name = new_button_name
         self.destination_folder = destination_folder
-        print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
+        #print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
 
         selected_item = self.evm_move_tree.selection()
         if selected_item:
@@ -181,6 +183,7 @@ class settings_functions:
                 raise ValueError(f"The folder '{search_folder_var}' is already in the search or is a subfolder of an existing folder.")
 
         self.search_folder_tree.insert('', 'end', values=(search_folder_var,))
+    
 
     def delete_folder(self, toplevel):
         selected_item = self.search_folder_tree.selection()[0]  # Get the ID of the selected item
@@ -190,17 +193,17 @@ class settings_functions:
     def update_search_data(self):
         # Get the folder data from the search_folder_tree treeview
         search_folder_data = [self.search_folder_tree.item(item)['values'][0] for item in self.search_folder_tree.get_children()]
-        print("Search folder data from treeview:", search_folder_data)
+        #print("Search folder data from treeview:", search_folder_data)
 
         with open('config.json', 'r') as config_file:
             config = json.load(config_file)
-        print("Config before update:", config)
+        #print("Config before update:", config)
 
         config['search_folders'] = search_folder_data
 
         with open('config.json', 'w') as config_file:
             json.dump(config, config_file, indent=2)
-        print("Updated config:", config)
+        #print("Updated config:", config)
 
     def regenerate_search_treeview(self):
         # Clear the treeview

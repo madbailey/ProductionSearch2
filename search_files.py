@@ -18,9 +18,11 @@ class SearchManager:
         search_folder_data = config['search_folders']
         normalized_search_folders = [ci.os.path.normpath(folder) for folder in search_folder_data]
         return normalized_search_folders
-    
-    ## starting point for search process, checks if we are connected to the shared drive, sends user input to be fixed, records start time and search duration
-    def search_files(self, order_number_entry):
+    def start_search(self, order_number_entry, event=None):
+        ci.threading.Thread(target=self.search_files, args=(order_number_entry,)).start()
+
+        
+    def search_files(self, order_number_entry, event=None):
         # Clear the previous search results
         self.clear_search_results()
 
@@ -88,7 +90,7 @@ class SearchManager:
 
         end_time = ci.time.time()
         search_duration = end_time - start_time
-        print(f"Finished searching {folder}. Search took {search_duration:.4f} seconds.")
+        #print(f"Finished searching {folder}. Search took {search_duration:.4f} seconds.")
 
         return found_order_numbers, unmatched_order_numbers
 
@@ -175,7 +177,7 @@ class SearchManager:
     ## adds relevant search items into the treeview
     def insert_tree_item(self, order_number, containing_folder, order_type, last_modified_date, file_path):
         file = ci.os.path.basename(file_path)
-        print(f"Found {order_number} in {file_path}")
+        #print(f"Found {order_number} in {file_path}")
 
         # If the order_number is in the single_occurrences dictionary, this is a duplicate
         if order_number in self.single_occurrences:

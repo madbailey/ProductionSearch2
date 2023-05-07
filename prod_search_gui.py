@@ -109,9 +109,11 @@ class SearchGUI:
         order_number_entry = tb.Entry(input_frame, width=70)
         order_number_entry.grid(row=0, column=1, padx=(0, 2), pady=5)
 
-        search_button = tb.Button(input_frame, text=" ⮩", command=lambda: threading.Thread(target=self.search_manager.search_files, args=(order_number_entry,)).start(), bootstyle="secondary-outline")
+        search_button = tb.Button(input_frame, text=" ⮩", 
+                                  command=lambda: self.search_manager.start_search(order_number_entry), 
+                                  bootstyle="secondary-outline")      
         search_button.grid(row=0, column=2, padx=(0, 0), pady=5)
-
+        order_number_entry.bind('<Return>', lambda event: self.search_manager.start_search(order_number_entry, event))
 
         refresh_button = tb.Button(input_frame, text="⟳", command=lambda: threading.Thread(target=self.search_manager.refresh, args=(order_number_entry,)).start(), width=5, bootstyle= "primary")
         refresh_button.grid(row=0, column=3, padx=(75,0), pady=0)
@@ -129,7 +131,7 @@ class SearchGUI:
         return self.inner_buttons_frame
     
     def refresh_move_buttons(self):
-        print("refresh move buttons executed")
+        #print("refresh move buttons executed")
 
         # Remove old widgets
         for widget in self.inner_buttons_frame.winfo_children():
@@ -312,7 +314,7 @@ class SearchGUI:
                                   bootstyle= 'danger', 
                                   command =lambda: self.settings_func.delete_button(popup))
         delete_button.grid(row=2, column=3, padx=5, pady=10)
-
+        
         def create_new_row_wrapper():
             try:
                 self.settings_func.create_new_row(new_button_name.get(), self.settings_func.destination_folder_var.get())
@@ -366,7 +368,7 @@ class SearchGUI:
                             command=lambda: self.settings_func.delete_folder(popup))
         delete_folder_button.grid(row=2, column=2, padx=5, pady=10)
 
-
+        
 
         # Center the popup window
         popup.update()
