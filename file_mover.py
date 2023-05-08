@@ -53,7 +53,7 @@ class FileMover:
     def move_file(self, destination_folder):
         self.undo_triggered
         selected_items = self.tree.selection()
-        current_move = []  # Store the paths of the current move operation
+        current_move = []  # Store the paths and item information of the current move operation
 
         for selected_item in selected_items:
             if self.undo_triggered:
@@ -65,7 +65,8 @@ class FileMover:
             if ci.os.path.exists(file_path):
                 result = self.move_single_file(file_path, destination_folder)  # Call the move_single_file function
                 if result:
-                    current_move.append(result)  # Save the source and destination paths
+                    item_values = self.tree.item(selected_item)["values"]
+                    current_move.append((result, item_values))  # Save the source, destination paths, and item information
                     self.tree.delete(selected_item)  # Remove the file from the tree view
             else:
                 ci.tk.messagebox.showerror("Error", "File not found.")
@@ -73,23 +74,27 @@ class FileMover:
         if current_move:
             self.undo_history.append(current_move)  # Add the current move operation to the undo history
 
+
 ## handles the operations of the undo button 
     def undo_last_move(self):
         if not self.undo_history:
             ci.tk.messagebox.showinfo("Info", "Nothing to undo.")
             return
-
+    
         last_move = self.undo_history.pop()
-
-        for source_path, destination_path in last_move:
+    
+        for move_info in last_move:
+            source_path, destination_path = move_info[0]
+            item_values = move_info[1]
+    
             if ci.os.path.exists(destination_path):
                 try:
                     ci.shutil.move(destination_path, source_path)
                     print(f"Moved {destination_path} back to {source_path}")
-                    self.tree.insert("", "end", values=(source_path, ci.os.path.basename(source_path)))  # Add the file back to the tree view
+                    self.tree.insert("", "end", values=item_values)  # Add the file back to the tree view using the stored item information
                 except Exception as e:
                     print(f"Error undoing move: {e}")
                     ci.tk.messagebox.showerror("Error", f"Error undoing move: {e}")
-        else:
-            ci.tk.messagebox.showerror("Error", "File not found.")
+            else:
+                ci.tk.messagebox.showerror("Error", "File not found.")
     

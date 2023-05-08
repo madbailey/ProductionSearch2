@@ -46,7 +46,7 @@ class Treeview_Handler:
 
         self.context_menu.post(event.x_root, event.y_root)
 
-## handles text copy pasting 
+## handles text copying 
     def copy_text(self, event=None, column_index=None):
         selected_items = self.tree.selection()
         if not selected_items:
@@ -67,7 +67,7 @@ class Treeview_Handler:
                     if parent_item:
                         # Get the order number value of the parent item
                         values = self.tree.item(parent_item)["values"]
-                        print(f"Values: {values}, Column index: {column_index}")  # debugging - remove this later
+                        #print(f"Values: {values}, Column index: {column_index}")  # debugging - remove this later
                         column_text = self.tree.item(parent_item)["values"][column_index]
 
                         # Remove the "+ " prefix from the order number
@@ -83,7 +83,7 @@ class Treeview_Handler:
 
             column_texts.append(str(column_text))
 
-        comma_delimited_text = ','.join(column_texts)
+        comma_delimited_text = ', '.join(column_texts)
 
         self.root.clipboard_clear()
         self.root.clipboard_append(comma_delimited_text)

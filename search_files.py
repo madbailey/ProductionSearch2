@@ -1,9 +1,8 @@
 import common_imports as ci
 import drive_checker
 
+MAPPED_DRIVE = "S"
 
-##this class has three main functions search_files_in_folder, which runs the loop of checking all order numbers in each folder in the search_folders directory
-## there is also search_files which handles cleaning and checking user input data to ensure it's usable
 class SearchManager:
     def __init__(self, tree):
         self.stop_search = False
@@ -26,7 +25,7 @@ class SearchManager:
         # Clear the previous search results
         self.clear_search_results()
 
-        if not drive_checker.is_drive_connected("S"):
+        if not drive_checker.is_drive_connected(MAPPED_DRIVE):
             ci.tk.messagebox.showerror("Error", "Network drive S: is not connected.")
             return
 
