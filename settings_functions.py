@@ -12,20 +12,17 @@ import os
 
 
 
-class settings_functions:
+class SettingsFunctions:
     """
     This class handles the settings and configuration for the application.
     """
-    def __init__(self, root, tk_title, evm_move_tree, buttons_frame, search_gui_instance, search_folder_tree):
-        self.root = root
-        self.tk_title = tk_title
-        self.destination_folder = tk.StringVar()
-        self.evm_move_tree = evm_move_tree
-        self.destination_folder.set('')
-        self.buttons_frame = buttons_frame
+    def __init__(self, parent, search_gui_instance):
+        self.parent = parent
         self.search_gui_instance = search_gui_instance
-        #print(f"Init destination_folder: {self.destination_folder}, type: {type(self.destination_folder)}")
-        
+        self.destination_folder = tk.StringVar()
+        self.evm_move_tree = None
+        self.search_folder_tree = None
+        self.destination_folder.set('')
         
         # Load the move_buttons data from the config
         with open('config.json', 'r') as config_file:
@@ -34,7 +31,7 @@ class settings_functions:
         self.move_buttons_data = config['move_buttons']
         self.selected_theme = config['user_style']
         self.destination_folder_var = StringVar()
-        self.search_folder_tree = search_folder_tree
+        
 
     def update_style(self, new_theme, popup):
         # Check if the new_theme is an empty string
@@ -52,7 +49,8 @@ class settings_functions:
         with open('config.json', 'w') as config_file:
             json.dump(config, config_file, indent=2)
         # Apply the new style
-        custom_styles.apply_styles(self.tk_title, self.selected_theme, root=self.root)
+        custom_styles.apply_styles(self.search_gui_instance.tk_title, self.selected_theme, 
+                                   root=self.search_gui_instance.root)
         print(f"Selected theme: {self.selected_theme}")
 
     def delete_button(self, toplevel):
