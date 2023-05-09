@@ -1,8 +1,13 @@
+##graphics dependencies
 import tkinter as tk
 from tkinter import ttk
 from ttkbootstrap.constants import *
 import ttkbootstrap as tb
 
+##functional dependencies
+import os
+from datetime import datetime
+import csv
 class DraggableTreeview(tb.Treeview):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,3 +38,5 @@ class DraggableTreeview(tb.Treeview):
 
     def set_settings_functions(self, SettingsFunctions):
         self.SettingsFunctions = SettingsFunctions
+        
+        

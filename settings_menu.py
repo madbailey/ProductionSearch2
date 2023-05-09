@@ -13,7 +13,7 @@ import os
 from draggable_treeview import DraggableTreeview
 import custom_styles
 
-#visual elements, buttons activate controllers
+
 class SettingsGUI:
     def __init__(self, parent, search_gui_instance):
         self.parent = parent
@@ -238,7 +238,7 @@ class SettingsController:
     def delete_folder_row_controller(self):
         self.settings_functions.delete_folder(self.settings_gui.popup)
         
-#executes the task of the GUI buttons      
+       
 class SettingsFunctions:
     """
     This class receives inputs from the SettingsController class and modifies config.json

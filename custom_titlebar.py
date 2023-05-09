@@ -35,17 +35,6 @@ class CustomTitleBar:
         title_bar.bind('<Button-1>', lambda event: get_pos(event, self.root, title_bar, title_bar_title, expand_button))
         title_bar_title.bind('<Button-1>', lambda event: get_pos(event, self.root, title_bar, title_bar_title, expand_button))
 
-
-
-
-        # button effects in the title bar when hovering over buttons
-        #close_button.bind('<Enter>', lambda event: changex_on_hovering(event, close_button))
-        #close_button.bind('<Leave>', lambda event: returnx_to_normalstate(event, close_button))
-        #expand_button.bind('<Enter>', lambda event: change_size_on_hovering(event, expand_button))
-        #expand_button.bind('<Leave>', lambda event: return_size_on_hovering(event, expand_button))
-        #minimize_button.bind('<Enter>', lambda event: changem_size_on_hovering(event, minimize_button))
-        #minimize_button.bind('<Leave>', lambda event: returnm_size_on_hovering(event, minimize_button,))
-
         # resize the window width
         resizex_widget = tk.Frame(self.window, cursor='sb_h_double_arrow')
         resizex_widget.pack(side=RIGHT, ipadx=2, fill=Y)

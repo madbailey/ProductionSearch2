@@ -1,19 +1,22 @@
+##graphical dependencies
 import tkinter as tk
 from tkinter import ttk
 from ttkbootstrap.constants import *
 import ttkbootstrap as tb
-from search_files import SearchManager
-from TreeView_Event_Handler import Treeview_Handler
-import read_config as readconfig
-import threading
+
+##functional dependencies
 import sys
-from file_mover import FileMover
-from settings_functions import SettingsFunctions
-from Settings_GUI import SettingsGUI
+import threading
 import json
 
+##our modules
 
-    
+from file_mover import FileMover
+from settings_menu import SettingsGUI
+from search_files import SearchManager
+import read_config as readconfig
+from TreeView_Event_Handler import Treeview_Handler
+
 
 
 
@@ -31,6 +34,8 @@ class SearchGUI:
         self.create_input_frame()
         self.create_buttons_frame()
         self.create_log_display()
+        
+        
         
 
     def create_treeview(self):
@@ -69,11 +74,10 @@ class SearchGUI:
                                     bootstyle='link',
                                       command= lambda: self.treeview_handler.export_to_csv("output.csv"))
         export_button.grid(row=6, column=2, padx=1, pady=1, sticky="e")
-    #created the frame where the search bar, search button, and refresh button go
-
+        
     def create_input_frame(self):
         input_frame = tb.Frame(self.frame)
-        input_frame.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        input_frame.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         order_number_label = tb.Label(input_frame, text="Order Numbers:", font= (self.font, 9))
         order_number_label.grid(row=0, column=0, padx=(0, 2), pady=5, sticky="w")
@@ -173,7 +177,9 @@ class SearchGUI:
 
 
      
-     
+class SearchController:
+    def __init__(self) -> None:
+        pass     
 
 
 
