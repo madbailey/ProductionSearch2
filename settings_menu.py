@@ -401,17 +401,11 @@ class SettingsFunctions:
 
         # Check if the new folder is a duplicate or a subfolder of an existing folder
         for folder in existing_folders:
-            # Normalize and make absolute paths
-            folder_abs = os.path.abspath(os.path.normpath(folder))
-            search_folder_var_abs = os.path.abspath(os.path.normpath(search_folder_var))
+            common_prefix = os.path.commonpath([search_folder_var, folder])
+            if search_folder_var == folder or common_prefix == search_folder_var or common_prefix == folder:
+                raise ValueError(f"The folder '{search_folder_var}' is already in the search or is a subfolder of an existing folder.")
 
-            # Compare the paths
-            if search_folder_var_abs == folder_abs:
-                raise ValueError(f"The folder '{search_folder_var}' is already in the search.")
-
-            # Check if one is a subfolder of the other
-            if os.path.commonpath([search_folder_var_abs, folder_abs]) == folder_abs:
-                raise ValueError(f"The folder '{search_folder_var}' is a subfolder of an existing folder.")
+        self.search_folder_tree.insert('', 'end', values=(search_folder_var,))
 
 
     def delete_folder(self, toplevel):
@@ -465,6 +459,7 @@ class SettingsFunctions:
                 "S:\\3_QCPassed_3",
                 "S:\\3_QCPassed_4",
                 "S:\\3_QCPassed_New",
+                "S:\\3_QCPassed_Test",
                 "S:\\14_BacktoQCpassed",
                 "S:\\8_Canceled Orders",
                 "S:\\AutoHouseReport",
