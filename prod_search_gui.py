@@ -21,7 +21,7 @@ from TreeView_Event_Handler import Treeview_Handler
 
 
 class SearchGUI:
-    def __init__(self, parent, style, ui_font, tk_title, root):
+    def __init__(self, parent, style, ui_font, tk_title, root, username):
         self.frame = tb.Frame(parent) # , bg=parent.cget('bg'), padx=10, pady=10
         self.frame.columnconfigure(0, weight=1)
         self.style = style
@@ -29,6 +29,7 @@ class SearchGUI:
         self.tk_title= tk_title
         self.root = root
         self.context_menu = tk.Menu(self.frame, tearoff=0)
+        self.username = username
         self.config = readconfig.read_config()
         self.create_treeview()
         self.create_input_frame()
@@ -135,6 +136,7 @@ class SearchGUI:
             )
             button.grid(row=item['row'], column=0, padx=0, pady=0, sticky="ew")
 
+
         # Update the frame
         self.inner_buttons_frame.update_idletasks()
 
@@ -144,7 +146,7 @@ class SearchGUI:
         inner_buttons_frame.grid(row=0, column=0, padx=0, pady=0, sticky='ew')
         config = readconfig.read_config()
         move_buttons_config = config["move_buttons"]
-    
+
         for button_config in move_buttons_config:
             text, row, target = button_config["text"], button_config["row"], button_config["target"]
             button = tb.Button(inner_buttons_frame, text=text, bootstyle = 'default.link', 

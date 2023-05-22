@@ -54,7 +54,7 @@ class CustomTitleBar:
         expand_button.pack(side=RIGHT, ipadx=7, ipady=1)
         minimize_button.pack(side=RIGHT, ipadx=7, ipady=1)
         title_bar_title.pack(side=LEFT, padx=10)
-        self.main_content.pack(in_=self.window, expand=1, fill=tk.BOTH)
+        
 
 ## using a custom title bar means no icon shows on the task bar and you can't alt tab switch to it, so this turns that stuff back on
     def set_appwindow(self, mainWindow):
