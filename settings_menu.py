@@ -37,16 +37,19 @@ class SettingsGUI:
         self.tab1= tb.Frame(options_notebook)
         self.tab2 = tb.Frame(options_notebook)
         self.tab3 = tb.Frame(options_notebook)
+        self.tab4 = tb.Frame(options_notebook)
         # Add tabs to the notebook
         options_notebook.add(self.tab1, text="Theme")
         options_notebook.add(self.tab2, text="EVM Move Buttons")
         options_notebook.add(self.tab3, text="Search Parameters")
+        options_notebook.add(self.tab4, text="User ID")
         
         #call the methods to populat the tab contents
         self.settings_buttons()
         self.first_tab_content()
         self.second_tab_content()
         self.third_tab_content()
+        self.fourth_tab_content()
         
         #center the pop up window
         self.popup.update()
@@ -188,6 +191,20 @@ class SettingsGUI:
         delete_folder_button.grid(row=2, column=2, padx=5, pady=10)
         
         self.settings_func.search_folder_tree = self.search_folder_tree
+    def fourth_tab_content(self):
+        user_id_label = tb.Label(self.tab4, text = "User ID:")
+        user_id_label.grid(row=0, column=0, padx=0, pady=0)
+        self.user_id_entry = tb.Entry(self.tab4, width =20)
+        self.user_id_entry.grid(row=0, column=1)
+        self.settings_func.user_id_entry = self.user_id_entry
+                              
+        #read the intial value from config file and set it in the entry box 
+        initial_user_id = self.config['user_id']
+        self.user_id_entry.insert(0, initial_user_id)
+        
+        return self.user_id_entry
+        # Add a combo box to the popup window
+        
        
 #connecting buttons to functions              
 class SettingsController: 
@@ -203,6 +220,7 @@ class SettingsController:
         print("pressed regenerate")
         self.settings_functions.regenerate_json()
     
+
     def create_new_button_row_controller(self):
             try:
                 self.settings_functions.create_new_row(self.settings_gui.new_button_name.get(), 
@@ -362,6 +380,7 @@ class SettingsFunctions:
         self.update_move_buttons_data()
         self.search_gui_instance.refresh_move_buttons()
         self.update_search_data()
+        self.update_userID_data()
         print("Refresh Move Buttons Called")
 
     def clear_button_entries(self, new_button_name, folder_selection):
@@ -407,6 +426,20 @@ class SettingsFunctions:
 
         self.search_folder_tree.insert('', 'end', values=(search_folder_var,))
 
+    def update_userID_data(self):
+            # Get the folder data from the search_folder_tree treeview
+            new_user_id = self.user_id_entry.get()
+            #print("Search folder data from treeview:", search_folder_data)
+
+            with open('config.json', 'r') as config_file:
+                config = json.load(config_file)
+            #print("Config before update:", config)
+
+            config['user_id'] = new_user_id
+
+            with open('config.json', 'w') as config_file:
+                json.dump(config, config_file, indent=2)
+            #print("Updated config:", config)
 
     def delete_folder(self, toplevel):
         selected_item = self.search_folder_tree.selection()[0]  # Get the ID of the selected item
@@ -473,7 +506,8 @@ class SettingsFunctions:
                 {"text": "Holding", "row": 5, "target": "S:\\AutoHouseReport"},
                 {"text": "ADF", "row": 6, "target": "S:\\3.1_ManualDelivery\\ADF"}
             ],
-            "user_style": "old"
+            "user_style": "old",
+            "user_id": 10
         }
 
         with open("config.json", "w") as config_file:

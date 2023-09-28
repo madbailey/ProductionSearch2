@@ -1,18 +1,22 @@
 import common_imports as ci
 import requests
 import json
+import read_config
 
 class FileMover:
     def __init__(self, tree):
         self.tree = tree
         self.undo_history = []
         self.undo_triggered = False
+        config = read_config.read_config()
+        self.user_id = int(config['user_id'])
         self.headers = {
             "User-Agent": "FileMoverScript/1.0",
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "en-US,en;q=0.5",
             "Content-Type": "application/json"
         }
+    
     def get_note(self, report_id):
         url = f"https://api.cmh.platform-prod2.evinternal.net/operations-center/api/TaskTrafficView/reports?reportIDs={report_id}"
 
@@ -36,7 +40,8 @@ class FileMover:
         url = "https://api.cmh.platform-prod2.evinternal.net/operations-center/api/Task/notes"
         data = {
             "reportID": report_id,
-            "notes": note
+            "notes": note,
+            "userID": self.user_id
         }
 
         response = requests.post(url, headers=self.headers, data=json.dumps(data))
@@ -102,7 +107,7 @@ class FileMover:
                 self.undo_triggered = False
                 break
             report_id = self.tree.item(selected_item)['values'][0]
-            file_path = self.tree.item(selected_item)["values"][4]
+            file_path = self.tree.item(selected_item)["values"][8]
             current_location = self.tree.item(selected_item)['values'][1]
 
             if ci.os.path.exists(file_path):
@@ -115,7 +120,7 @@ class FileMover:
                     existing_note = self.get_note(report_id)
 
                     # Append the note about the file move operation
-                    new_note = existing_note + f"\nMoved from {current_location} to {destination_folder}" if existing_note else f"Moved from {current_location} to {destination_folder}"
+                    new_note =  f"\nEVM moved {current_location}->{destination_folder}" + existing_note if existing_note else f"Evm moved {current_location} to {destination_folder}"
                     self.send_note(new_note, report_id)
 
                     return (file_path, destination_folder)

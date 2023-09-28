@@ -29,7 +29,7 @@ class Treeview_Handler:
     def open_file_location(self, event):
         selected_item = self.tree.selection()
         if selected_item and not self.is_parent(selected_item[0]):
-            file_path = self.tree.item(selected_item[0])["values"][4]
+            file_path = self.tree.item(selected_item[0])["values"][8]
 
             if ci.os.path.exists(file_path):
                 ci.os.system(f'explorer /select,"{file_path}"')

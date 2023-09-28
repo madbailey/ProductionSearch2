@@ -1,5 +1,6 @@
 import common_imports as ci
 import drive_checker
+import requests
 
 MAPPED_DRIVE = "S"
 
@@ -76,10 +77,15 @@ class SearchManager:
             for file in files:
                 match = order_number_pattern.search(file)
                 if match and file.endswith(".evm"):
-                    order_number, file_path, last_modified_date, containing_folder = self.process_file(match, root, file)
+                    try: order_number, file_path, last_modified_date, containing_folder, task_state, file_size, hipster_present, walls_present = self.process_file(match, root, file)
+                    except: 
+                        if order_number: 
+                            found_order_numbers.discard(order_number)
+                            unmatched_order_numbers.add(order_number)
+                        continue
                     if order_number is not None:
                         order_type = self.extract_order_type(order_type_pattern, file)
-                        self.insert_tree_item(order_number, containing_folder, order_type, last_modified_date, file_path)
+                        self.insert_tree_item(order_number, containing_folder, order_type, last_modified_date, file_path, task_state, file_size, hipster_present, walls_present)
                         found_order_numbers.add(order_number)
                         unmatched_order_numbers.discard(order_number)  # Remove
                 if len(found_order_numbers) == len(fixed_input):
@@ -93,6 +99,67 @@ class SearchManager:
 
         return found_order_numbers, unmatched_order_numbers
 
+    def get_taskstate(self, order_number):
+        url = f"https://api.cmh.platform-prod2.evinternal.net/operations-center/api/TaskTrafficView/reports?reportIDs={order_number}"
+        headers = {
+            "User-Agent": "FileMoverScript/1.0",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()  # Assuming that the response is JSON format
+            if isinstance(data, list) and len(data) > 0:  # if response is a list and not empty
+                taskState = data[0].get('taskState') if 'taskState' in data[0] else None  # Extract the task state field if it exists
+            else:  # if response is not a list or is empty
+                taskState = None
+            print(f"Current taskState for {order_number}: {taskState}")
+        
+            return taskState
+        else:
+            print(f'Request failed for report ID: {order_number}, status code: {response.status_code}')
+            print('Response text:', response.text)
+            return None
+        
+    def get_measurement_data(self, order_number):
+        url = f"https://api.cmh.platform-prod2.evinternal.net/operations-center/api/TaskTrafficView/reports?reportIDs={order_number}"
+        headers = {
+            "User-Agent": "FileMoverScript/1.0",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()  # Assuming that the response is JSON format
+            if isinstance(data, list) and len(data) > 0:  # if response is a list and not empty
+                measurement_items = data[0].get('measurementItems') if 'measurementItems' in data[0] else None  # Extract the task state field if it exists
+            else:  # if response is not a list or is empty
+                measurement_items = None
+            print(f"Current measurement items for {order_number}: {measurement_items}")
+        
+            return measurement_items
+        else:
+            print(f'Request failed for report ID: {order_number}, status code: {response.status_code}')
+            print('Response text:', response.text)
+            return None
+        
+    def check_walls (self, order_number):
+        measurement_items = self.get_measurement_data(order_number)
+        item_list = [int(item.strip()) for item in measurement_items.split(',') if item.strip().isdigit()]
+        walls = any(item in [2, 14, 37] for item in item_list)
+        return walls
+    
+    def check_hipster (self, order_number):
+        measurement_items = self.get_measurement_data(order_number)
+        item_list = [int(item.strip()) for item in measurement_items.split(',') if item.strip().isdigit()]
+        hipster = 36 in item_list
+        return hipster
 ## takes found matches, extracts order number, file path, last modified timestamp
     def process_file(self, match, root, file):
         try:
@@ -106,10 +173,18 @@ class SearchManager:
             parent_folder_name = ci.os.path.basename(parent_folder_path)
             # Get the grandparent folder path
             grandparent_folder_path = ci.os.path.dirname(parent_folder_path)
+            #get the task state from the oc
+            task_state = self.get_taskstate(order_number)
+            #get the file size 
+            file_size = self.get_readable_file_size(file_path)
+            #is hipster
+            hipster_present = self.check_hipster(order_number)
+            #is walls 
+            walls_present = self.check_walls(order_number)
             # Get the grandparent folder name
             grandparent_folder_name = ci.os.path.basename(grandparent_folder_path)
             containing_folder = f"{grandparent_folder_name}/{parent_folder_name}" if grandparent_folder_name else parent_folder_name
-            return order_number, file_path, last_modified_date, containing_folder
+            return order_number, file_path, last_modified_date, containing_folder, task_state, file_size, hipster_present, walls_present
 
         except FileNotFoundError:
             print(f"The file {file} was moved or deleted before it could be processed.")
@@ -152,6 +227,15 @@ class SearchManager:
             return None
 
         return fixed_input
+    def get_readable_file_size(self, file_path):
+        size_in_bytes = ci.os.path.getsize(file_path)
+        
+        for unit in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+            if size_in_bytes < 1024.0:
+                return f"{size_in_bytes:.2f} {unit}"
+            size_in_bytes /= 1024.0
+        
+        return size_in_bytes
 
 ## handles refresh functionality 
     def refresh(self, order_number_entry):
@@ -174,7 +258,7 @@ class SearchManager:
         self.stop_search = False
     
     ## adds relevant search items into the treeview
-    def insert_tree_item(self, order_number, containing_folder, order_type, last_modified_date, file_path):
+    def insert_tree_item(self, order_number, containing_folder, order_type, last_modified_date, file_path, task_state, file_size, hipster_present, walls_present):
         file = ci.os.path.basename(file_path)
         #print(f"Found {order_number} in {file_path}")
 
@@ -188,10 +272,10 @@ class SearchManager:
                 values[0] = "⎢"
                 # Remove the single occurrence item from the tree
                 self.tree.delete(self.single_occurrences[order_number]['item'])
-                parent_item = self.tree.insert("", "end", text=order_number, values=("+ " + order_number , "", "", "", ""))
+                parent_item = self.tree.insert("", "end", text=order_number, values=("+ " + order_number , "", "", "", "", "", ))
                 self.tree.insert(parent_item, "end", values=values)
                 # Insert the second occurrence as a child item under the parent_item
-                self.tree.insert(parent_item, "end", values=("⎣", containing_folder, order_type, last_modified_date, file_path, file))
+                self.tree.insert(parent_item, "end", values=("⎣", containing_folder, order_type, task_state, file_size, hipster_present, walls_present, last_modified_date, file_path, file))
                 # Set the single_occurrence value for the order_number to None
                 self.single_occurrences[order_number] = None
             else:
@@ -202,10 +286,10 @@ class SearchManager:
                         parent_item = item
                         break
                 # Insert the file details as a child item under the parent_item
-                self.tree.insert(parent_item, "end", values=("∟", containing_folder, order_type, last_modified_date, file_path, file))
+                self.tree.insert(parent_item, "end", values=("∟", containing_folder, order_type, task_state, file_size, hipster_present, walls_present, last_modified_date, file_path, file))
         else:
             # If the order_number is not in the single_occurrences dictionary, this is the first occurrence
-            item = self.tree.insert("", "end", values=("    " + order_number, containing_folder, order_type, last_modified_date, file_path, file))
+            item = self.tree.insert("", "end", values=("    " + order_number,  containing_folder, order_type, task_state, file_size, hipster_present, walls_present, last_modified_date, file_path, file ))
             self.single_occurrences[order_number] = {'item': item}
 
 

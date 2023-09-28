@@ -21,7 +21,7 @@ from TreeView_Event_Handler import Treeview_Handler
 
 
 class SearchGUI:
-    def __init__(self, parent, style, ui_font, tk_title, root, username):
+    def __init__(self, parent, style, ui_font, tk_title, root):
         self.frame = tb.Frame(parent) # , bg=parent.cget('bg'), padx=10, pady=10
         self.frame.columnconfigure(0, weight=1)
         self.style = style
@@ -29,7 +29,6 @@ class SearchGUI:
         self.tk_title= tk_title
         self.root = root
         self.context_menu = tk.Menu(self.frame, tearoff=0)
-        self.username = username
         self.config = readconfig.read_config()
         self.create_treeview()
         self.create_input_frame()
@@ -40,8 +39,8 @@ class SearchGUI:
         
 
     def create_treeview(self):
-        columns = ("Order #", "Location", "Product", "Last Modified", "File Path")
-        column_widths = (5, 20, 10, 20, 30)
+        columns = ("RID", "Location", "Product", "Task State", "File Size", "Hipster", "Walls", "Last Modified",  "File Path")
+        column_widths = (5, 20, 5, 10, 10, 5, 5, 40, 10)
         self.style.configure("Treeview.Heading", font = (self.font, 9))
 
         self.tree = tb.Treeview(self.frame, columns=columns, show="headings", bootstyle = "dark", selectmode='extended') #
@@ -66,11 +65,11 @@ class SearchGUI:
         self.tree.bind("<Button-3>", self.treeview_handler.treeview_right_click)
         self.tree.bind("<Control-c>", self.treeview_handler.copy_text)
 
-        self.context_menu.add_command(label="Copy Order #", 
+        self.context_menu.add_command(label="Copy RID #", 
                               command=lambda: self.treeview_handler.copy_text(column_index=0))
 
         self.context_menu.add_command(label="Copy File Path", 
-                                      command=lambda: self.treeview_handler.copy_text(column_index=4))
+                                      command=lambda: self.treeview_handler.copy_text(column_index=8))
         export_button = tb.Button(self.frame, text="Export", 
                                     bootstyle='link',
                                       command= lambda: self.treeview_handler.export_to_csv("output.csv"))
@@ -80,7 +79,7 @@ class SearchGUI:
         input_frame = tb.Frame(self.frame)
         input_frame.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        order_number_label = tb.Label(input_frame, text="Order Numbers:", font= (self.font, 9))
+        order_number_label = tb.Label(input_frame, text="Report IDs:", font= (self.font, 9))
         order_number_label.grid(row=0, column=0, padx=(0, 2), pady=5, sticky="w")
 
         order_number_entry = tb.Entry(input_frame, width=70)

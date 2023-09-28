@@ -25,8 +25,8 @@ root.minimized = False  # only to know if root is minimized
 root.maximized = False  # only to know if root is maximized
 
 #prompt for log in information
-username = simpledialog.askstring("Input", "Username:")
-password = simpledialog.askstring("Input", "Password:", show='*')
+#username = simpledialog.askstring("Input", "Username:")
+#password = simpledialog.askstring("Input", "Password:", show='*')
 
 # a window to rest the title bar in
 window = tb.Frame(root)
@@ -42,12 +42,16 @@ notebook.add(tab1, text='EVM Search')
 tab2 = ttk.Frame(notebook)
 notebook.add(tab2, text='Queue Tracker')
 
+
+
 # Create a custom title bar
-search_gui = SearchGUI(tab1, style, ui_font, tk_title, root, username)  # Instantiate SearchGUI
+search_gui = SearchGUI(tab1, style, ui_font, tk_title, root)  # Instantiate SearchGUI
 search_gui.frame.pack(fill=tk.BOTH, expand=True)  # pack the search_gui's frame
 
-queue_monitor = UltimateIRTool(tab2, username, password)
+queue_monitor = UltimateIRTool(tab2)
 queue_monitor.frame.pack(fill=tk.BOTH, expand=True)
+
+
 
 title_bar = CustomTitleBar(root, tk_title, window, style, window, ui_font)  # handles the custom title bar
 title_bar.set_appwindow(root)  ##
